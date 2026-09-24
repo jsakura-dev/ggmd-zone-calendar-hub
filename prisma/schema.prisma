@@ -48,6 +48,7 @@ model Activity {
   title         String
   date          DateTime
   startTime     String?
+  location      String?
   isLocked      Boolean  @default(false)
   isFromSync    Boolean  @default(false)
   googleEventId String?  @unique
