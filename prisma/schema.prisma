@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum LeadershipLevel {
+  ZONE
+  REGION
+  CHAPTER
+  DISTRICT
+  GROUP
+  UNIT
+}
+
+enum LeaderRole {
+  ADMIN
+  LEADER
+}
+
+model OrgNode {
+  id         String          @id @default(cuid())
+  name       String
+  level      LeadershipLevel
+  parentId   String?
+  parent     OrgNode?        @relation("OrgHierarchy", fields: [parentId], references: [id])
+  children   OrgNode[]       @relation("OrgHierarchy")
+  leaders    Leader[]
+  activities Activity[]
+  createdAt  DateTime        @default(now())
+}
+
+model Leader {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  name      String?
+  role      LeaderRole @default(LEADER)
+  unitId    String
+  unit      OrgNode    @relation(fields: [unitId], references: [id])
+  createdAt DateTime   @default(now())
+}
+
+model Activity {
+  id            String   @id @default(cuid())
+  title         String
+  date          DateTime
+  startTime     String?
+  isLocked      Boolean  @default(false)
+  isFromSync    Boolean  @default(false)
+  googleEventId String?  @unique
+  unitId        String
+  unit          OrgNode  @relation(fields: [unitId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
